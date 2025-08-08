@@ -1,135 +1,183 @@
-document.addEventListener('DOMContentLoaded', function() {
-    const sportsCards = document.querySelectorAll('.sports-card');
-    const gamePopup = document.getElementById('gamePopup');
-    const selectedGameElement = document.getElementById('selectedGame');
-    const battleMessageElement = document.getElementById('battleMessage');
+// Tournament Management System - JavaScript
 
-    sportsCards.forEach(card => {
-        card.addEventListener('click', function() {
-            const sportName = this.getAttribute('data-sport');
-            
-            // Add click animation
-            this.classList.add('clicked');
-            
-            // Remove animation class after animation completes
-            setTimeout(() => {
-                this.classList.remove('clicked');
-            }, 600);
-            
-            // Show popup after a short delay
-            setTimeout(() => {
-                showGameSelection(sportName);
-            }, 300);
-        });
+// State management
+let selectedSport = '';
 
-        // Add hover sound effect simulation (visual feedback)
-        card.addEventListener('mouseenter', function() {
-            this.style.transform = 'scale(1.03) translateY(-5px)';
-        });
+const gamePopup = document.getElementById('gamePopup');
+const selectedGameElement = document.getElementById('selectedGame');
+const battleMessageElement = document.getElementById('battleMessage');
+const sportsCards = document.querySelectorAll('.sport-card');
 
-        card.addEventListener('mouseleave', function() {
-            if (!this.classList.contains('clicked')) {
-                this.style.transform = 'scale(1) translateY(0)';
-            }
-        });
-    });
+// Initialize the application
+document.addEventListener('DOMContentLoaded', function () {
+    initializeApp();
+});
 
-    function showGameSelection(sportName) {
-        selectedGameElement.textContent = `You Selected ${sportName}!`;
-        battleMessageElement.textContent = `Get Ready for an Epic ${sportName} Battle!`;
-        
-        gamePopup.classList.add('active');
-        
-        // Add body scroll lock
-        document.body.style.overflow = 'hidden';
+function initializeApp() {
+    createFloatingParticles();
+    setupSportSelectionListeners();
+    addStaggeredAnimations();
+    loadSelectedSport();
+}
+
+// Create floating particles animation
+function createFloatingParticles() {
+    const particlesContainer = document.getElementById('particles-container');
+
+    for (let i = 0; i < 20; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.top = Math.random() * 100 + '%';
+        particle.style.animationDelay = Math.random() * 3 + 's';
+        particle.style.animationDuration = (3 + Math.random() * 2) + 's';
+        particlesContainer.appendChild(particle);
     }
+}
 
-    // Close popup function (global scope for onclick)
-    window.closePopup = function() {
-        gamePopup.classList.remove('active');
-        document.body.style.overflow = 'auto';
-        
-        // Reset all card transforms
-        sportsCards.forEach(card => {
-            card.style.transform = 'scale(1) translateY(0)';
-        });
-    };
-
-    // Close popup when clicking outside
-    gamePopup.addEventListener('click', function(e) {
-        if (e.target === gamePopup) {
-            closePopup();
-        }
-    });
-
-    // Close popup with Escape key
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && gamePopup.classList.contains('active')) {
-            closePopup();
-        }
-    });
-
-    // Add smooth scrolling and page load animation
-    window.addEventListener('load', function() {
-        document.body.style.opacity = '0';
-        document.body.style.transition = 'opacity 0.5s ease-in-out';
-        
-        setTimeout(() => {
-            document.body.style.opacity = '1';
-        }, 100);
-
-        // Animate cards on load
-        sportsCards.forEach((card, index) => {
-            card.style.opacity = '0';
-            card.style.transform = 'translateY(50px)';
-            card.style.transition = 'all 0.6s ease-in-out';
-            
-            setTimeout(() => {
-                card.style.opacity = '1';
-                card.style.transform = 'translateY(0)';
-            }, 200 + (index * 100));
+// Set up sport selection event listeners
+function setupSportSelectionListeners() {
+    document.querySelectorAll('.sport-btn').forEach(button => {
+        button.addEventListener('click', function (e) {
+            e.preventDefault();
+            const sport = this.getAttribute('data-sport');
+            handleSportSelect(sport);
+            showGameSelection(sport);
         });
     });
+}
 
-    // Add parallax effect to background
-    window.addEventListener('scroll', function() {
-        const scrolled = window.pageYOffset;
-        const parallax = document.querySelector('.container');
-        const speed = scrolled * 0.5;
-        
-        if (parallax) {
-            parallax.style.transform = `translateY(${speed}px)`;
-        }
-    });
+// Handle sport selection
+function handleSportSelect(sport) {
+    selectedSport = sport;
+    localStorage.setItem('selectedSport', sport);
+    updateSelectedSportDisplay(sport);
+}
 
-    // Add touch support for mobile devices
+// Show popup
+function showGameSelection(sportName) {
+    selectedGameElement.textContent = `You Selected ${sportName}!`;
+    battleMessageElement.textContent = `Get Ready for an Epic ${sportName} Battle!`;
+    battleMessageElement.style.color = '#2563eb'; // Blue text
+
+    gamePopup.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+// Close popup
+window.closePopup = function () {
+    gamePopup.classList.remove('active');
+    document.body.style.overflow = 'auto';
     sportsCards.forEach(card => {
-        card.addEventListener('touchstart', function() {
-            this.style.transform = 'scale(1.03) translateY(-5px)';
-        });
-
-        card.addEventListener('touchend', function() {
-            setTimeout(() => {
-                if (!this.classList.contains('clicked')) {
-                    this.style.transform = 'scale(1) translateY(0)';
-                }
-            }, 150);
-        });
+        card.style.transform = 'scale(1) translateY(0)';
     });
+};
+
+// Close popup when clicking outside
+gamePopup.addEventListener('click', function (e) {
+    if (e.target === gamePopup) {
+        closePopup();
+    }
 });
 
-// Performance optimization: Debounce resize events
-let resizeTimeout;
-window.addEventListener('resize', function() {
-    clearTimeout(resizeTimeout);
-    resizeTimeout = setTimeout(function() {
-        // Recalculate any size-dependent elements if needed
-        const cards = document.querySelectorAll('.sports-card');
-        cards.forEach(card => {
-            card.style.transition = 'none';
-            setTimeout(() => {
-                card.style.transition = 'all 0.4s ease-in-out';
-            }, 50);
-        });
-    }, 250);
+// Close popup with Escape key
+document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && gamePopup.classList.contains('active')) {
+        closePopup();
+    }
 });
+
+// Update selected sport display
+function updateSelectedSportDisplay(sport) {
+    const selectedSportElement = document.getElementById('selected-sport');
+    if (selectedSportElement) {
+        selectedSportElement.textContent = sport;
+    }
+}
+
+// Load previously selected sport
+function loadSelectedSport() {
+    const storedSport = localStorage.getItem('selectedSport');
+    if (storedSport) {
+        selectedSport = storedSport;
+        updateSelectedSportDisplay(storedSport);
+    }
+}
+
+// Add staggered animations to sport cards
+function addStaggeredAnimations() {
+    const sportCards = document.querySelectorAll('.sport-card-container');
+    sportCards.forEach((card, index) => {
+        setTimeout(() => {
+            card.style.opacity = '1';
+        }, index * 150);
+    });
+}
+
+// Toast notification system
+function showToast(title, description, duration = 3000) {
+    const toastContainer = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.innerHTML = `
+        <div class="toast-title">${title}</div>
+        <div class="toast-description">${description}</div>
+    `;
+    toastContainer.appendChild(toast);
+    setTimeout(() => {
+        removeToast(toast);
+    }, duration);
+}
+
+// Remove toast with animation
+function removeToast(toast) {
+    toast.style.animation = 'slide-out 0.3s ease-out';
+    setTimeout(() => {
+        if (toast.parentNode) {
+            toast.parentNode.removeChild(toast);
+        }
+    }, 300);
+}
+
+// Smooth scroll utility
+function smoothScrollTo(element) {
+    element.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+    });
+}
+
+// Debounce utility
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+const handleResize = debounce(() => {
+    console.log('Window resized');
+}, 250);
+
+window.addEventListener('resize', handleResize);
+
+window.TournamentApp = {
+    handleSportSelect,
+    showToast,
+    selectedSport: () => selectedSport
+};
+// function setBattleMessageColor(userColor) {
+//     document.documentElement.style.setProperty('--battle-message-color', userColor);
+// }
+
+// // Example: user sets it via prompt
+// const userColor = prompt("Enter your preferred battle message color (e.g., red, #ff0000, rgb(0,255,0)):");
+// if (userColor) {
+//     setBattleMessageColor(userColor);
+// }
+
