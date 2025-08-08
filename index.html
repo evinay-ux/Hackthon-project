@@ -1,78 +1,135 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sports Arena - Choose Your Game</title>
-    <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Oswald:wght@300;400;600&display=swap" rel="stylesheet">
-</head>
-<body>
-    <div class="container">
-        <header class="header">
-            <h1 class="main-title">SPORTS ARENA</h1>
-            <p class="subtitle">Choose Your Battle</p>
-        </header>
+document.addEventListener('DOMContentLoaded', function() {
+    const sportsCards = document.querySelectorAll('.sports-card');
+    const gamePopup = document.getElementById('gamePopup');
+    const selectedGameElement = document.getElementById('selectedGame');
+    const battleMessageElement = document.getElementById('battleMessage');
 
-        <main class="sports-grid">
-            <div class="sports-card cricket" data-sport="Cricket">
-                <div class="card-content">
-                    <div class="sport-logo">🏏</div>
-                    <h2 class="sport-name">CRICKET</h2>
-                </div>
-                <div class="card-overlay"></div>
-            </div>
+    sportsCards.forEach(card => {
+        card.addEventListener('click', function() {
+            const sportName = this.getAttribute('data-sport');
+            
+            // Add click animation
+            this.classList.add('clicked');
+            
+            // Remove animation class after animation completes
+            setTimeout(() => {
+                this.classList.remove('clicked');
+            }, 600);
+            
+            // Show popup after a short delay
+            setTimeout(() => {
+                showGameSelection(sportName);
+            }, 300);
+        });
 
-            <div class="sports-card football" data-sport="Football">
-                <div class="card-content">
-                    <div class="sport-logo">⚽</div>
-                    <h2 class="sport-name">FOOTBALL</h2>
-                </div>
-                <div class="card-overlay"></div>
-            </div>
+        // Add hover sound effect simulation (visual feedback)
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'scale(1.03) translateY(-5px)';
+        });
 
-            <div class="sports-card basketball" data-sport="Basketball">
-                <div class="card-content">
-                    <div class="sport-logo">🏀</div>
-                    <h2 class="sport-name">BASKETBALL</h2>
-                </div>
-                <div class="card-overlay"></div>
-            </div>
+        card.addEventListener('mouseleave', function() {
+            if (!this.classList.contains('clicked')) {
+                this.style.transform = 'scale(1) translateY(0)';
+            }
+        });
+    });
 
-            <div class="sports-card tennis" data-sport="Tennis">
-                <div class="card-content">
-                    <div class="sport-logo">🎾</div>
-                    <h2 class="sport-name">TENNIS</h2>
-                </div>
-                <div class="card-overlay"></div>
-            </div>
+    function showGameSelection(sportName) {
+        selectedGameElement.textContent = `You Selected ${sportName}!`;
+        battleMessageElement.textContent = `Get Ready for an Epic ${sportName} Battle!`;
+        
+        gamePopup.classList.add('active');
+        
+        // Add body scroll lock
+        document.body.style.overflow = 'hidden';
+    }
 
-            <div class="sports-card kabaddi" data-sport="Kabaddi">
-                <div class="card-content">
-                    <div class="sport-logo">🤼</div>
-                    <h2 class="sport-name">KABADDI</h2>
-                </div>
-                <div class="card-overlay"></div>
-            </div>
+    // Close popup function (global scope for onclick)
+    window.closePopup = function() {
+        gamePopup.classList.remove('active');
+        document.body.style.overflow = 'auto';
+        
+        // Reset all card transforms
+        sportsCards.forEach(card => {
+            card.style.transform = 'scale(1) translateY(0)';
+        });
+    };
 
-            <div class="sports-card table-tennis" data-sport="Table Tennis">
-                <div class="card-content">
-                    <div class="sport-logo">🏓</div>
-                    <h2 class="sport-name">TABLE TENNIS</h2>
-                </div>
-                <div class="card-overlay"></div>
-            </div>
-        </main>
+    // Close popup when clicking outside
+    gamePopup.addEventListener('click', function(e) {
+        if (e.target === gamePopup) {
+            closePopup();
+        }
+    });
 
-        <div class="game-selection-popup" id="gamePopup">
-            <div class="popup-content">
-                <h2 id="selectedGame">You Selected Cricket!</h2>
-                <p id="battleMessage">Get Ready for an Epic Cricket Battle!</p>
-                <button class="close-popup" onclick="closePopup()">LET'S PLAY!</button>
-            </div>
-        </div>
-    </div>
+    // Close popup with Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && gamePopup.classList.contains('active')) {
+            closePopup();
+        }
+    });
 
-    <script src="script.js"></script>
-</body>
-</html>
+    // Add smooth scrolling and page load animation
+    window.addEventListener('load', function() {
+        document.body.style.opacity = '0';
+        document.body.style.transition = 'opacity 0.5s ease-in-out';
+        
+        setTimeout(() => {
+            document.body.style.opacity = '1';
+        }, 100);
+
+        // Animate cards on load
+        sportsCards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(50px)';
+            card.style.transition = 'all 0.6s ease-in-out';
+            
+            setTimeout(() => {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 200 + (index * 100));
+        });
+    });
+
+    // Add parallax effect to background
+    window.addEventListener('scroll', function() {
+        const scrolled = window.pageYOffset;
+        const parallax = document.querySelector('.container');
+        const speed = scrolled * 0.5;
+        
+        if (parallax) {
+            parallax.style.transform = `translateY(${speed}px)`;
+        }
+    });
+
+    // Add touch support for mobile devices
+    sportsCards.forEach(card => {
+        card.addEventListener('touchstart', function() {
+            this.style.transform = 'scale(1.03) translateY(-5px)';
+        });
+
+        card.addEventListener('touchend', function() {
+            setTimeout(() => {
+                if (!this.classList.contains('clicked')) {
+                    this.style.transform = 'scale(1) translateY(0)';
+                }
+            }, 150);
+        });
+    });
+});
+
+// Performance optimization: Debounce resize events
+let resizeTimeout;
+window.addEventListener('resize', function() {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(function() {
+        // Recalculate any size-dependent elements if needed
+        const cards = document.querySelectorAll('.sports-card');
+        cards.forEach(card => {
+            card.style.transition = 'none';
+            setTimeout(() => {
+                card.style.transition = 'all 0.4s ease-in-out';
+            }, 50);
+        });
+    }, 250);
+});
